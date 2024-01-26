@@ -5,6 +5,9 @@
  *)
 
 #use "pc.ml";;
+open PC;;
+
+(*test push*)
 
 exception X_not_yet_implemented of string;;
 exception X_this_should_not_happen of string;;
@@ -578,7 +581,7 @@ module Tag_Parser : TAG_PARSER = struct
                                            ScmNil))));;
 
   let rec macro_expand_cond_ribs ribs = 
-    raise (X_not_yet_implemented "hw 1");;
+    raise (X_not_yet_implemented "hm1");;
 
   let is_list_of_unique_names =
     let rec run = function
