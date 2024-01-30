@@ -7,7 +7,8 @@
 #use "pc.ml";;
 open PC;;
 
-(*test push*)
+
+
 
 exception X_not_yet_implemented of string;;
 exception X_this_should_not_happen of string;;
@@ -367,9 +368,26 @@ module Reader : READER = struct
                     ScmPair(ScmSymbol "string-append", argl)) in
     nt1 str
   and nt_vector str =
-    raise (X_not_yet_implemented "for hw 1")
+    let nt1 = char '#' in
+    let nt2 = char '(' in
+    let nt3 = star nt_sexpr in
+    let nt4 = char ')' in
+    let nt1 = caten nt1 (caten nt2 (caten nt3 nt4)) in
+    let nt1 = pack nt1 (fun (_, (_, (sexprs, _))) -> sexprs) in
+    let nt1 = pack nt1 (fun sexprs -> ScmVector sexprs) in
+    nt1 str
   and nt_list str =
-    raise (X_not_yet_implemented "for hw 1")
+    let nt1 = char '(' in
+    let nt2 = star nt_sexpr in
+    let nt3 = char ')' in
+    let nt1 = caten nt1 (caten nt2 nt3) in
+    let nt1 = pack nt1 (fun (_, (sexprs, _)) -> sexprs) in
+    let nt1 = pack nt1 (fun sexprs ->
+                  List.fold_right
+                    (fun car cdr -> ScmPair(car, cdr))
+                    sexprs
+                    ScmNil) in 
+    nt1 str
   and make_quoted_form nt_qf qf_name =
     let nt1 = caten nt_qf nt_sexpr in
     let nt1 = pack nt1
