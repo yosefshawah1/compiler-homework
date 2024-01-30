@@ -376,18 +376,21 @@ module Reader : READER = struct
     let nt1 = pack nt1 (fun (_, (_, (sexprs, _))) -> sexprs) in
     let nt1 = pack nt1 (fun sexprs -> ScmVector sexprs) in
     nt1 str
-  and nt_list str =
-    let nt1 = char '(' in
-    let nt2 = star nt_sexpr in
-    let nt3 = char ')' in
-    let nt1 = caten nt1 (caten nt2 nt3) in
-    let nt1 = pack nt1 (fun (_, (sexprs, _)) -> sexprs) in
-    let nt1 = pack nt1 (fun sexprs ->
-                  List.fold_right
-                    (fun car cdr -> ScmPair(car, cdr))
-                    sexprs
-                    ScmNil) in 
-    nt1 str
+    and nt_list str =
+      let nt1 = char '(' in
+      let nt2 = maybe (caten nt_sexpr (caten (char '.') nt_sexpr)) in
+      let nt3 = star nt_sexpr in
+      let nt4 = char ')' in
+      let nt1 = caten nt1 (caten nt2 (caten nt3 nt4)) in
+      let nt1 = pack nt1 (fun (_, (pair, (sexprs, _))) ->
+                    match pair with
+                    | Some (car, (_, cdr)) -> ScmPair (car, cdr)
+                    | None -> 
+                        match sexprs with
+                        | [] -> ScmNil
+                        | h :: t -> 
+                            List.fold_right (fun car cdr -> ScmPair(car, cdr)) sexprs ScmNil) in 
+      nt1 str
   and make_quoted_form nt_qf qf_name =
     let nt1 = caten nt_qf nt_sexpr in
     let nt1 = pack nt1
